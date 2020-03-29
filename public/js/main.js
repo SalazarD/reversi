@@ -46,7 +46,7 @@ socket.on('join_room_response', function(payload){
 
 	/* add a new row to the lobby table*/
 	var dom_elements = $('.socket_'+payload.socket_id);
-	if(dom_elements.length==0);{
+	if(dom_elements.length==0){
 		var nodeA = $('<div></div>');
 		nodeA.addClass('socket_'+payload.socket_id);
 		var nodeB = $('<div></div>');

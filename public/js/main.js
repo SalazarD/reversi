@@ -18,6 +18,7 @@ if('undefined' == typeof username || !username){
 }
 
 var chat_room = getURLParameters('game_id');
+
 if('undefined' == typeof chat_room || !chat_room){
 	chat_room ='lobby';
 }
@@ -57,7 +58,7 @@ socket.on('join_room_response', function(payload){
 		nodeA.addClass('w-100');
 		nodeB.addClass('col-9 text-right');
 		nodeB.append('<h4>'+payload.username+'</h4>');
-		nodeC.addClass('cold-3 text-right');
+		nodeC.addClass('cold-3 text-left');
 		var buttonC = makeInviteButton();
 		nodeC.append(buttonC);
 
@@ -84,7 +85,7 @@ socket.on('join_room_response', function(payload){
 	$('#messages').append(newNode);
 	newNode.slideDown(1000);
 
-	$('#messages').append('<p> New user joined the room: '+payload.username+'</p>');
+	//$('#messages').append('<p> New user joined the room: '+payload.username+'</p>');
 });
 
 
@@ -103,7 +104,7 @@ socket.on('player_disconnected', function(payload){
 		return;
 	}
 
-	/* add a new row to the lobby table*/
+	/* remove a row from the lobby table*/
 	var dom_elements = $('.socket_'+payload.socket_id);
 	if(dom_elements.length!=0){
 		dom_elements.slideUp(1000);

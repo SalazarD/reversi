@@ -55,7 +55,7 @@ io.sockets.on('connection', function(socket){
 	
 	
 	socket.on('join_room', function(payload){
-		log('\'join_room\' command', JSON.stringify(payload));
+		log('\'join_room\' command'+ JSON.stringify(payload));
 
 		if(('undefined' === typeof payload) || !payload){
 			var error_message = 'join_room had no payload, command aborted';
@@ -77,7 +77,7 @@ io.sockets.on('connection', function(socket){
 				});
 			return;
 		}
-
+		/*check for username*/
 		var username = payload.username;
 		if(('undefined' === typeof username) || !username){
 			var error_message = 'join_room had no username, command aborted';
@@ -91,8 +91,8 @@ io.sockets.on('connection', function(socket){
 		/* store new player data*/
 
 		players[socket.id] = {};
-		players[socket.id].username = {username};
-		players[socket.id].room = {room};
+		players[socket.id].username = username;
+		players[socket.id].room = room;
 
 
 
@@ -101,7 +101,7 @@ io.sockets.on('connection', function(socket){
 
 		var roomObject = io.sockets.adapter.rooms[room];
 		
-
+		/*tell everyone someone joined*/
 		var numClients = roomObject.length;
 		var success_data = {
 			result: 'success',
@@ -131,7 +131,7 @@ io.sockets.on('connection', function(socket){
 
 	});
 
-	socket.on('disconnect', function(socket){
+	socket.on('disconnect', function(){
 		log('Client disconnected '+JSON.stringify(players[socket.id]));
 		if('undefined' !== typeof players[socket.id] && players[socket.id]){
 			var username = players[socket.id].username;

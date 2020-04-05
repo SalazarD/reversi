@@ -168,7 +168,7 @@ io.sockets.on('connection', function(socket){
 				});
 			return;
 		}
-		var username = payload.username;
+		var username = players[socket.id].username;
 		if(('undefined' === typeof username) || !username){
 			var error_message = 'send_message had no username, command aborted';
 			log(error_message);
@@ -195,7 +195,7 @@ io.sockets.on('connection', function(socket){
 			username: username,
 			message: message
 		};
-		io.sockets.in(room).emit('send_message_response', success_data);
+		io.in(room).emit('send_message_response', success_data);
 		log('Message sent to room '+ room + ' by '+ username);
 	});
 
@@ -261,11 +261,151 @@ io.sockets.on('connection', function(socket){
 
 		var success_data = {
 			result: 'success',
-			socket_id: socket_id
+			socket_id: socket.id
 		};
 		socket.to(requested_user).emit('invited', success_data);
 
 		log('invite successful');
+
+		
+	});
+
+	socket.on('uninvite', function(payload){
+		log('uninvite with '+ JSON.stringify(payload));
+		//Check if a payload was sent
+		if(('undefined' === typeof payload) || !payload){
+			var error_message = 'uninvite had no payload, command aborted';
+			log(error_message);
+			socket.emit('uninvite_response', {
+				result: 'fail',
+				message: error_message
+				});
+			return;
+		}
+		//check who the nessage traces to
+		var username = players[socket.id].username;
+		if(('undefined' === typeof username) || !username){
+			var error_message = 'uninvite cant identify username, command aborted';
+			log(error_message);
+			socket.emit('uninvite_response', {
+				result: 'fail',
+				message: error_message
+				});
+			return;
+		}
+		var requested_user = payload.requested_user;
+		if(('undefined' === typeof requested_user) || !requested_user){
+			var error_message = 'uninvite cant identify requested_user, command aborted';
+			log(error_message);
+			socket.emit('uninvite_response', {
+				result: 'fail',
+				message: error_message
+				});
+			return;
+		}
+
+		var room = players[socket.id].room;
+		var roomObject = io.sockets.adapter.rooms[room];
+		//make sure user is inside the room
+		if(!roomObject.sockets.hasOwnProperty(requested_user)){
+			var error_message = 'invite requested user that wasnt in the room, command aborted';
+			log(error_message);
+			socket.emit('invite_response', {
+				result: 'fail',
+				message: error_message
+				});
+			return;
+		}
+
+		//if ok then respond to uninviter that it was success
+
+		var success_data = {
+			result: 'success',
+			socket_id: requested_user
+		};
+		socket.emit('uninvite_response', success_data);
+
+		//tell uninvitee they have been invited
+
+		var success_data = {
+			result: 'success',
+			socket_id: socket_id
+		};
+		socket.to(requested_user).emit('uninvited', success_data);
+
+		log('uninvite successful');
+
+		
+	});
+
+
+	socket.on('game_start', function(payload){
+		log('game_start with '+ JSON.stringify(payload));
+		//Check if a payload was sent
+		if(('undefined' === typeof payload) || !payload){
+			var error_message = 'game_start had no payload, command aborted';
+			log(error_message);
+			socket.emit('game_start_response', {
+				result: 'fail',
+				message: error_message
+				});
+			return;
+		}
+		//check who the nessage traces to
+		var username = players[socket.id].username;
+		if(('undefined' === typeof username) || !username){
+			var error_message = 'game_start cant identify username, command aborted';
+			log(error_message);
+			socket.emit('game_start_response', {
+				result: 'fail',
+				message: error_message
+				});
+			return;
+		}
+		var requested_user = payload.requested_user;
+		if(('undefined' === typeof requested_user) || !requested_user){
+			var error_message = 'game_start cant identify requested_user, command aborted';
+			log(error_message);
+			socket.emit('game_start_response', {
+				result: 'fail',
+				message: error_message
+				});
+			return;
+		}
+
+		var room = players[socket.id].room;
+		var roomObject = io.sockets.adapter.rooms[room];
+		//make sure user is inside the room
+		if(!roomObject.sockets.hasOwnProperty(requested_user)){
+			var error_message = 'game_start requested user that wasnt in the room, command aborted';
+			log(error_message);
+			socket.emit('game_start_response', {
+				result: 'fail',
+				message: error_message
+				});
+			return;
+		}
+
+		//if ok then respond to game_starter that it was success
+
+var game_id = Math.floor((1+Math.random())*0x10000).toString(16).substring(1);
+		var success_data = {
+			result: 'success',
+			socket_id: requested_user,
+			game_id: game_id
+		};
+		socket.emit('game_start_response', success_data);
+
+		//tell other player to play
+
+		var success_data = {
+			result: 'success',
+			socket_id: socket.id,
+			game_id: game_id
+		};
+		socket.to(requested_user).emit('game_start_response', success_data);
+
+		log('game_start successful');
 
 		
 	});

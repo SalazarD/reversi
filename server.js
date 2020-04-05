@@ -329,7 +329,7 @@ io.sockets.on('connection', function(socket){
 
 		var success_data = {
 			result: 'success',
-			socket_id: socket_id
+			socket_id: socket.id
 		};
 		socket.to(requested_user).emit('uninvited', success_data);
 

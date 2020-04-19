@@ -309,6 +309,7 @@ var old_board =[
 ];
 
 var my_color = ' ';
+var interval_timer;
 
 
 socket.on('game_update', function(payload){
@@ -342,14 +343,42 @@ socket.on('game_update', function(payload){
 		window.location.href = 'lobby.html?username='+username;
 		return;
 	}
+	var temp;
+	if(payload.game.whose_turn === 'black'){
+		temp='green';
+	}
+	else{
+		temp='red';
+	}
+
 	if(my_color == 'white'){
 
 	$('#my_color').html('<h3 id="my_color">I am '+'red'+'</h3>');
+	$('#my_color').append('<h4 It is '+temp+'\'s turn. Elapsed time <span id="elapsed"></span></h4>');
 	}
 	if(my_color == 'black'){
 
 	$('#my_color').html('<h3 id="my_color">I am '+'green'+'</h3>');
+	$('#my_color').append('<h4> It is '+temp+'\'s turn. Elapsed time <span id="elapsed"></span></h4>');
+
 	}
+
+	clearInterval(interval_timer);
+	interval_timer = setInterval(function(last_time){
+		return function(){
+			var d = new Date();
+			var elapsedmilli = d.getTime() - last_time;
+			var minutes = Math.floor(elapsedmilli / (60 * 1000));
+			var seconds = Math.floor((elapsedmilli % (60 * 1000)) / 1000);
+			if(seconds < 10){
+				$('#elapsed').html(minutes+':0'+seconds);
+			}
+			else{
+				$('#elapsed').html(minutes+':'+seconds);
+			}
+		}}(payload.game.last_move_time)
+		, 1000);
+	
 
 	/* animate board changes */
 
@@ -407,9 +436,12 @@ socket.on('game_update', function(payload){
 				{
 					$('#'+row+'_'+column).html('<img src="assets/images/error.gif" alt="error square"/>');
 				}
-				/* set up interaction*/
-				$('#'+row+'_'+column).off('click');
-				if(board[row][column]==' '){
+			}
+			/* set up interaction*/
+			$('#'+row+'_'+column).off('click');
+			$('#'+row+'_'+column).removeClass('hovered_over');
+			if(payload.game.whose_turn === my_color){
+				if(payload.game.legal_moves[row][column] === my_color.substr(0,1)){
 					$('#'+row+'_'+column).addClass('hovered_over');
 					$('#'+row+'_'+column).click(function(r,c){
 						return function(){
@@ -422,14 +454,11 @@ socket.on('game_update', function(payload){
 						};
 					}(row,column));
 				}
-				else{
-					$('#'+row+'_'+column).removeClass('hovered_over');
-
-				}
-
 			}
+
 		}
-	} 
+	}
+	 
 
 	$('#blacksum').html(blacksum);
 	$('#whitesum').html(whitesum);

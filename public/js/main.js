@@ -421,10 +421,10 @@ socket.on('game_update', function(payload){
 					$('#'+row+'_'+column).html('<img src="assets/images/green_to_empty.gif" alt="empty square"/>');
 				}
 				else if(old_board[row][column] == 'w' && board[row][column] == 'b'){
-					$('#'+row+'_'+column).html('<img src="assets/images/red_to_green.gif" alt="green square"/>');
+					$('#'+row+'_'+column).html('<img src="assets/images/green.gif" alt="green square"/>');
 				}
 				else if(old_board[row][column] == 'b' && board[row][column] == 'w'){
-					$('#'+row+'_'+column).html('<img src="assets/images/green_to_red.gif" alt="red square"/>');
+					$('#'+row+'_'+column).html('<img src="assets/images/red.gif" alt="red square"/>');
 				}
 				else if(old_board[row][column] == 'b' && board[row][column] == 'b'){
 					$('#'+row+'_'+column).html('<img src="assets/images/green.gif" alt="green square"/>');
